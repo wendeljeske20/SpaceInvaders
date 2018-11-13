@@ -13,13 +13,15 @@ public:
 	list<GameObject*> *objectList;
 	float speed = 0.015;
 	bool test = false;
+	bool isPlayerBullet = true;
 	Vector2 *angularSpeed;
 	
 
 	void Update();
-	void SetTargetPosition(Vector2 *targetPosition);
+	void SetTargetPosition(Vector2 *targetPosition, bool isPlayerBullet);
 	void Follow();
 
+	
 
 };
 

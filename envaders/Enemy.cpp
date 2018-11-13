@@ -14,7 +14,9 @@ Enemy::Enemy(GLFWwindow * window, list<GameObject*>* objectList, string name, Ve
 
 
 	targetPosition = new Vector2(0, 0);
-	fireRate = 200;
+	fireRate = 150;
+	textureName = "spaceshuttle.jpg";
+	SetTexture();
 
 }
 
@@ -27,6 +29,15 @@ void Enemy::SetTargetPosition(Vector2 * targetPosition)
 {
 	this->targetPosition = targetPosition;
 }
+
+void Enemy::Fire(Vector2 * targetPosition, float offSetY)
+{
+	Bullet *bullet = new Bullet(objectList, new Vector2(position->x, position->y + offSetY));
+	bullet->SetTargetPosition(targetPosition, false);
+	bullet->scale = new Vector2(0.3, 0.3);
+	objectList->push_back(bullet);
+}
+ 
 
 void Enemy::Update()
 {
@@ -50,13 +61,13 @@ void Enemy::Update()
 	GameObject *otherObj = *it;
 	//GameObject *thisGo = *findIter;
 
-	if (Colliding(otherObj) && !test)
+	if (otherObj && Colliding(otherObj) && !test)
 	{
 		//	
 		//	//objectList->remove(thisGo);
 		//	//delete this;
 		//
-		//objectList->remove(otherObj);
+		objectList->remove(otherObj);
 		//	
 		//
 		cout << "collidiu";
@@ -77,4 +88,32 @@ void Enemy::Update()
 		}
 	}*/
 
+
+	CheckBulletCollisions(true);
+
+	//for (std::list<GameObject*>::iterator it = objectList->begin(); it != objectList->end(); ++it)
+	//{
+	//	GameObject *otherObj = *it;
+
+	//	if (otherObj)
+	//	{
+	//		if (Bullet* b = dynamic_cast<Bullet*>(otherObj))
+	//		{
+	//			if (Colliding(b) && b->isPlayerBullet)
+	//			{
+	//				
+	//				objectList->remove(b);
+	//				delete b;
+	//				b = nullptr;
+
+	//				//cout << "collidiu";
+	//				currentHealth -= 40;
+	//				
+	//				break;
+	//			}
+
+	//		}
+	//	}
+	//	
+	//}
 }

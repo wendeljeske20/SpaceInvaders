@@ -23,7 +23,8 @@ public:
 	int currentHealth = maxHealth;
 
 	virtual void Update();
-	void Fire(Vector2 *targetPosition, float offSetY);
+	virtual void Fire(Vector2 *targetPosition, float offSetY);
+	void CheckBulletCollisions(bool isPlayerBullet);
 
 
 

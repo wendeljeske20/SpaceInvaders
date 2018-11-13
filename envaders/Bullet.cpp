@@ -4,21 +4,21 @@
 
 Bullet::Bullet(list<GameObject*> *objectList, Vector2 *position)
 {
-	targetPosition = new Vector2(0, 0);
-
+	
+	this->objectList = objectList;
 	this->position = position;
 	startPosition = position;
 	name = "bullet";
-
-	this->objectList = objectList;
-
-
+	
+	textureName = "container.jpg";
+	SetTexture();
 }
 
 
 Bullet::~Bullet()
 {
 }
+
 
 void Bullet::Update()
 {
@@ -27,26 +27,36 @@ void Bullet::Update()
 	Follow();
 
 
-	list<GameObject*>::iterator findIter = std::find(objectList->begin(), objectList->end(), this);
-	GameObject *thisObj = *findIter;
+	//list<GameObject*>::iterator findIter = std::find(objectList->begin(), objectList->end(), this);
+	//GameObject *thisObj = *findIter;
 
-	if (position->y > 0 && objectList->size() > 1 && !test)
-	{
-		//objectList->remove(objectList->front());
-		//cout << thisObj->name << " ";
-		test = true;
+	//if (position->y > 0 && !test)
+	//{
+	//	//objectList->remove(objectList->front());
+	//	//cout << thisObj->name << " ";
+	//	test = true;
 
 
-	}
+	//	objectList->erase(findIter++);
+	//
+	//	
+	//	//delete thisObj;
+	//	//thisObj = nullptr;
+	//	//cout << "morreu";
+
+	//	test = true;
+	//	return;
+	//}
 
 
 
 }
 
-void Bullet::SetTargetPosition(Vector2 *targetPosition)
+void Bullet::SetTargetPosition(Vector2 *targetPosition, bool isPlayerBullet)
 {
 
 	this->targetPosition = targetPosition;
+	this->isPlayerBullet = isPlayerBullet;
 	GameObject::Update();
 	
 	float angle = atan2(targetPosition->x - startPosition->x, targetPosition->y - startPosition->y);
@@ -65,4 +75,6 @@ void Bullet::Follow()
 	position->y += angularSpeed->y;
 	
 }
+
+
 

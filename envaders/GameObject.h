@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
+#include "stb_image.h"
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
@@ -34,15 +34,19 @@ public:
 	string name = "undefined";
 	GLfloat *points = new GLfloat[9];
 	
+	unsigned int texture;
+	char *textureName;
 	GLuint vao;
 
 	
+
 	
 	
 	
 	virtual void Update();
 
 	void SetBuffer();
+	void SetTexture();
 	bool Colliding(GameObject *other);
 
 

@@ -12,7 +12,7 @@
 #include <iostream>
 #include "gl_utils.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+
 
 #include "Player.h"
 #include "Enemy.h"
@@ -25,14 +25,15 @@ int g_gl_height = 768;
 GLFWwindow *g_window = NULL;
 
 list<GameObject*> *objectList = new list<GameObject*>();
-int printRate = 40;
 int nextPrintRate = 0;
 
 
 unsigned int texture;
+
+
 GLuint shader_programme;
 
-void PrintList()
+void PrintList(int printRate)
 {
 	nextPrintRate++;
 	if (nextPrintRate == printRate)
@@ -40,46 +41,14 @@ void PrintList()
 		cout << "---------------------------" << endl;
 		for (std::list<GameObject*>::iterator it = objectList->begin(); it != objectList->end(); ++it)
 		{
+			
 			GameObject *obj = *it;
 			cout << "[" + to_string(distance(objectList->begin(), it)) + "] " + obj->name << endl;
 		}
 		nextPrintRate = 0;
 	}
 }
-void Texture()
-{
 
-	// load and create a texture
-	// -------------------------
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrChannels;
-
-	//stbi_set_flip_vertically_on_load(true);
-	unsigned char *data = stbi_load("spaceshuttle.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
-	glEnable(GL_CULL_FACE); // cull face
-	glCullFace(GL_BACK);		// cull back face
-	glFrontFace(GL_CW);			// GL_CCW for counter clock-wise
-}
 
 int Shader()
 {
@@ -131,10 +100,47 @@ int Shader()
 
 }
 
-void Draw(int vao)
-{
-	glBindVertexArray(vao);
+//void Texture(unsigned int &t, char *textureName)
+//{
+//
+//	// load and create a texture
+//	// -------------------------
+//	
+//	glGenTextures(1, &t);
+//	glBindTexture(GL_TEXTURE_2D, t);
+//
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//	int width, height, nrChannels;
+//
+//	//stbi_set_flip_vertically_on_load(true);
+//	unsigned char *data = stbi_load(textureName, &width, &height, &nrChannels, 0);
+//	if (data)
+//	{
+//		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+//		glGenerateMipmap(GL_TEXTURE_2D);
+//	}
+//	else
+//	{
+//		std::cout << "Failed to load texture" << std::endl;
+//	}
+//	stbi_image_free(data);
+//
+//	glEnable(GL_CULL_FACE); // cull face
+//	glCullFace(GL_BACK);		// cull back face
+//	glFrontFace(GL_CW);			// GL_CCW for counter clock-wise
+//}
 
+void Draw(GameObject *obj)
+{
+	//Texture(0, obj->textureName);
+	
+	glBindTexture(GL_TEXTURE_2D, obj->texture);
+	glBindVertexArray(obj->vao);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -148,19 +154,21 @@ int main() {
 	//glDepthFunc( GL_LESS );		 // depth-testing interprets a smaller value as "closer"
 
 	Player *player = new Player(g_window, objectList, "player", new Vector2(0, -0.8));
+	
 	//player->SetColors(Vector3::cyan);
 	objectList->push_back(player);
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 8; i++)
 	{
-		for (int j = 0; j < 1; j++)
+		for (int j = 0; j < 3; j++)
 		{
 
-			Enemy *enemy = new Enemy(g_window, objectList, "enemy", new Vector2(-0.6 + (i * 0.3), 0.7 - (j * 0.3)));
+			Enemy *enemy = new Enemy(g_window, objectList, "enemy", new Vector2(-0.9 + (i * 0.2), 0.8 - (j * 0.2)));
 
-
+			
 			objectList->push_back(enemy);
 		}
 	}
+
 
 	/*GameObject *horizontalLine = new GameObject("horizontal line", new Vector2(0, 0));
 	horizontalLine->scale = new Vector2(20, 0.03);
@@ -183,18 +191,23 @@ int main() {
 
 
 
-
 	Shader();
-	Texture();
-
+	
+	
 	bool pressed = false;
 
 	int random, fireInterval = 50, nextFireInterval = 0;
+	bool test = false;
+
+	bool dir = false;
+	int enemyMoveRate = 170;
+	int nextEnemyMoveRate = 0;
 
 	while (!glfwWindowShouldClose(g_window)) {
 
-		random = rand() % 9 + 0;
+		random = rand() % 15 + 0;
 		nextFireInterval++;
+		nextEnemyMoveRate++;
 
 		// wipe the drawing surface clear
 		glClearColor(0.2f, 0.5f, 0.2f, 1.0f);
@@ -203,7 +216,7 @@ int main() {
 		glViewport(0, 0, g_gl_width, g_gl_height);
 
 		// bind Texture
-		glBindTexture(GL_TEXTURE_2D, texture);
+		
 
 		//
 		// Note: this call is not necessary, but I like to do it anyway before any
@@ -213,7 +226,7 @@ int main() {
 		// Note: this call is not necessary, but I like to do it anyway before any
 		// time that I call glDrawArrays() so I never use the wrong vertex data
 
-
+		//Texture("spaceshuttle.jpg");
 
 		if (!objectList->empty())
 		{
@@ -221,25 +234,67 @@ int main() {
 			{
 				GameObject *obj = *it;
 
-				if (obj != nullptr)
+				if (obj)
 				{
 					if (Enemy* e = dynamic_cast<Enemy*>(obj))
 					{
-						//////e->SetTargetPosition(objectList->front()->position);
-						//if (distance(objectList->begin(), it) == random + 1)
-						//{
-						//	if (nextFireInterval == fireInterval)
-						//	{
-						//		e->Fire(objectList->front()->position, -0.1);
-						//		nextFireInterval = 0;
-						//	}
+						if(nextEnemyMoveRate == enemyMoveRate)
+						{
+							dir = !dir;
+							nextEnemyMoveRate = 0;
+						}
+						if (dir)
+						{
+							e->position->x -= 0.002;
+						}
+						else
+						{
+							e->position->x += 0.002;
+						}
+						
 
-						//}
+						
+						e->SetTargetPosition(objectList->front()->position);
+						if (distance(objectList->begin(), it) == random + 1)
+						{
+							if (nextFireInterval == fireInterval)
+							{
+								e->Fire(objectList->front()->position, -0.1);
+								nextFireInterval = 0;
+							}
+
+						}
+						if (e->currentHealth <= 0)
+						{
+							objectList->remove(e);
+							delete e;
+							e = nullptr;
+							break;
+						}
+					}
+					if (Bullet* b = dynamic_cast<Bullet*>(obj))
+					{
+						if (b->isPlayerBullet && b->position->y > 0.8)
+						{
+							objectList->remove(b);
+							delete b;
+							b = nullptr;
+							
+							break;
+						}
+						else if (!b->isPlayerBullet && b->position->y < -0.8)
+						{
+							objectList->remove(b);
+							delete b;
+							b = nullptr;
+							
+							break;
+						}
 					}
 
 					obj->Update();
-					obj->SetBuffer();
-					Draw(obj->vao);
+					
+					Draw(obj);
 					//if (!objectList->empty())
 					{
 						//objectList->pop_front();
@@ -248,12 +303,17 @@ int main() {
 
 
 			}
-			//PrintList();
+			PrintList(50);
 		}
 
 
 		// update other events like input handling
 		glfwPollEvents();
+		if (GLFW_PRESS == glfwGetKey(g_window, GLFW_KEY_R)) {
+			//Texture(0,"container.jpg");
+
+		}
+
 		if (GLFW_PRESS == glfwGetKey(g_window, GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(g_window, 1);
 		}

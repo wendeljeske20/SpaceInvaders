@@ -10,5 +10,7 @@ public:
 	Vector2(float x, float y);
 	void Print();
 
+	static Vector2 *zero, *one;
+
 };
 

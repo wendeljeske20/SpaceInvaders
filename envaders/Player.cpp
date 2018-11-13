@@ -13,9 +13,10 @@ Player::Player(GLFWwindow * window, list<GameObject*>* objectList, string name, 
 	this->name = name;
 	this->position = position;
 
-
+	textureName = "container.jpg";
 	fireRate = 30;
 
+	SetTexture();
 
 }
 
@@ -36,6 +37,15 @@ void Player::Update()
 	}
 
 	//position->Print();
+	CheckBulletCollisions(false);
+}
+
+void Player::Fire(Vector2 * targetPosition, float offSetY)
+{
+	Bullet *bullet = new Bullet(objectList, new Vector2(position->x, position->y + offSetY));
+	bullet->SetTargetPosition(targetPosition, true);
+	bullet->scale = new Vector2(0.3, 0.3);
+	objectList->push_back(bullet);
 }
 
 

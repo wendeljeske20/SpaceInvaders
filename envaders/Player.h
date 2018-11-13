@@ -10,6 +10,7 @@ public:
 	~Player();
 
 	void Update();
+	void Fire(Vector2 *targetPosition, float offSetY);
 	void MoveControls();
 };
 
